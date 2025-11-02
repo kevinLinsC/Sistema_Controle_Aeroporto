@@ -28,6 +28,10 @@ public class Sistema_Controle_Aeroporto {
         // VARIAVEIS DOS VOOS
         String numeroVoo, origem, destino, horarioPartida, qtdMaxPessoa;
         ArrayList<String[]> voos = new ArrayList<>(); // Lista que guarda vetores com as informações dos voos.
+        // ADICIONANDO VOOS ALEATORIOS. TIRAR DPS
+        voos.add(new String[]{"1234", "Algum lugar", "Outro lugar", "12:00", "5", "0"});
+        voos.add(new String[]{"4321", "Outro lugar", "Algum lugar", "18:00", "10", "0"});
+        voos.add(new String[]{"9999", "WRLD", "Another WRLD", "99:99", "999", "998"});
         
         // VARIAVEIS DE RESERVAS DE VOOS
         Queue<String[]> reservas = new LinkedList<>();
@@ -40,6 +44,7 @@ public class Sistema_Controle_Aeroporto {
         
         // VARIAVEIS DO PASSAGEIRO
         int opcaoPassageiro; // Opções de navegação do passageiro.
+        int opcaoVooPassageiro;
         String nome, cpf, email, idade;
         
         while (true) {
@@ -47,7 +52,8 @@ public class Sistema_Controle_Aeroporto {
             Linha();
             opcaoUsuario = PegaNum("Escolha o tipo de usuario: \n1 - Passageiro\n2 - Administrador\n-> ");
             Linha();
-
+            
+            // Usuário escolhido foi o passageiro.
             if (opcaoUsuario == 1) {
                 // Faz enquanto "opcaoPassageiro" for diferente de zero.
                 do {
@@ -55,29 +61,65 @@ public class Sistema_Controle_Aeroporto {
                     opcaoPassageiro = PegaNum("1 - Reserva de voos \n2 - Check-in\n3 - Informacoes de voos\n0 - Escolher outro usuario\n-> ");
                     
                     switch (opcaoPassageiro) {
-                        case 1:
+                        case 1 -> { // Reserva de voos.
                             Linha();
-                            for (String[] vetor : voos) {
-                                System.out.println(Arrays.toString(vetor));
+                            // Escreve todos os voos disponiveis.
+                            for (String[] voo : voos) {
+                                if (Integer.parseInt(voo[4]) > Integer.parseInt(voo[5])) {
+                                    System.out.println(voo[0] + " - Saindo de: " + voo[1] + ", Destino: " + voo[2] + ", Horario: " + voo[3]);
+                                }
                             }
-                            System.out.print("Digite seu nome: ");
-                            nome = dado.readLine();
+                            
+                            Linha();
+                            // Usuário escolhe o voo.
+                            opcaoVooPassageiro = PegaNum("Escolha um dos voos acima: ");
+                            
+                            String[] vooSelecionado = null; // vooSelecionado é inicializado como nulo.
+                            // Pega o voo com base no id passado pelo usuário.
+                            for (String[] voo : voos) {
+                                if (Integer.toString(opcaoVooPassageiro).equals(voo[0])) {
+                                    vooSelecionado = voo;
+                                    break;
+                                }
+                            }
+                            
+                            // Se o vooSelecionado for nulo, quer dizer que não foi selecionado nenhum voo.
+                            if (vooSelecionado == null) {
+                                System.out.println("Voo não encontrado");
+                            }
+                            else {
+                                // Pega a quantidade de passageiros naquele voo e soma mais um.
+                                int qtdVoo = Integer.parseInt(vooSelecionado[5]) + 1;
+                                // Substitui a quantidade antiga pela nova.
+                                vooSelecionado[5] = String.valueOf(qtdVoo);
+                                
+                                Linha();
+                                System.out.println("Codigo do voo selecionado: " + vooSelecionado[0]);
+                                Linha();
+                                
+                                // Pega as informações do usuário.
+                                System.out.print("Digite seu nome: ");
+                                nome = dado.readLine();
 
-                            idade = Integer.toString(PegaNum("Digite sua idade: "));
+                                idade = Integer.toString(PegaNum("Digite sua idade: "));
 
-                            System.out.print("Digite seu CPF: ");
-                            cpf = dado.readLine();
+                                System.out.print("Digite seu CPF: ");
+                                cpf = dado.readLine();
 
-                            System.out.print("Digite seu e-mail: ");
-                            email = dado.readLine();
-
-                            reservas.add(new String[]{nome, idade, cpf, email});
-                            break;
-                        case 2:
+                                System.out.print("Digite seu e-mail: ");
+                                email = dado.readLine();
+                                
+                                // Adiciona a reserva na fila.
+                                reservas.add(new String[]{nome, idade, cpf, email, vooSelecionado[0], "Pendente"});
+                                System.out.println(Arrays.toString(reservas.peek()));
+                                Linha();
+                            }
+                        }
+                        case 2 -> {
                             Linha();
                             System.out.println("Check-in");
-                            break;
-                        case 3:
+                        }
+                        case 3 -> {
                             System.out.println("Informacoes de voos");
                             int opcaoTemp;
                             do {
@@ -110,14 +152,13 @@ public class Sistema_Controle_Aeroporto {
                                         break;
                                 }
                             } while (opcaoTemp != 0);
-                            
-                            break;
-                        default:
-                            break;
+                        }
+                        default -> {
+                        }
                     }
                 } while (opcaoPassageiro != 0); 
             }
-            else if (opcaoUsuario == 2) {
+            else if (opcaoUsuario == 2) { // Usuário escolhido foi o administrador.
                 // Login do usuário.
                 System.out.print("Login: ");
                 login = dado.readLine();
