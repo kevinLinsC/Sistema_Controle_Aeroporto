@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Queue; // Lista.
 import java.util.LinkedList; // Lista.
+import java.util.Stack; // Pilha
 import java.util.Random; // Usado para gerar números aleatórios.
 
 /**
@@ -50,6 +51,9 @@ public class Sistema_Controle_Aeroporto {
         int opcaoPassageiro; // Opções de navegação do passageiro.
         int opcaoVooPassageiro;
         String nome, cpf, email, idade;
+        
+        // VARIAVEIS DO CHECK-IN
+        Stack<String[]> checkin = new Stack<>();
         
         while (true) {
             // Escolha de usuário.
@@ -92,11 +96,6 @@ public class Sistema_Controle_Aeroporto {
                                 System.out.println("Voo não encontrado");
                             }
                             else {
-                                // Pega a quantidade de passageiros naquele voo e soma mais um.
-                                int qtdVoo = Integer.parseInt(vooSelecionado[5]) + 1;
-                                // Substitui a quantidade antiga pela nova.
-                                vooSelecionado[5] = String.valueOf(qtdVoo);
-                                
                                 Linha();
                                 System.out.println("Codigo do voo selecionado: " + vooSelecionado[0]);
                                 Linha();
@@ -122,18 +121,54 @@ public class Sistema_Controle_Aeroporto {
                         case 2 -> {
                             Linha();
                             System.out.println("Check-in");
+                            int confirmacaoCheckin; // 1 = Confirmado; 2 = Não confirmado.
+                            String[] reservaCheckin = null; // Proxima reserva confirmada na fila.
+                            String[] vooReserva = null; // Voo relacionado a reserva confirmada.
+
+                            reservaCheckin = reservasConfirmadas.peek(); // Pega a proxima reserva confirmada na fila.
+
+                            // Pega o voo relacionado a reserva confirmada.
+                            for (String[] voo : voos) {
+                                if (reservaCheckin[4].equals(voo[0])) {
+                                    vooReserva = voo;
+                                    break;
+                                }
+                            }
+
+                            // Mostras as informações da reserva e do voo.
+                            Linha();
+                            System.out.println("REALIZE O CHECK-IN");
+                            System.out.println("Nome: " + reservaCheckin[0]);
+                            System.out.println("Idade: " + reservaCheckin[1]);
+                            System.out.println("CPF: " + reservaCheckin[2]);
+                            System.out.println("E-mail: " + reservaCheckin[3]);
+                            System.out.println("Voo: " + vooReserva[0] + " - Saindo de: " + vooReserva[1] + ", Destino: " + vooReserva[2] + ", Horario: " + vooReserva[3]);
+                            Linha();
+
+                            // Confirmação da reserva.
+                            confirmacaoCheckin = PegaNum("1 - Confirmar Check-in\n2 - Deixar pendente\n-> ");
+
+                            // Se houver confirmação.
+                            if (confirmacaoCheckin == 1) {
+                                // Remove o primeiro item da fila.
+                                reservasConfirmadas.poll();
+                                // Adiciona a reserva confirmada na lista de reservas confirmadas.
+                                checkin.push(new String[]{reservaCheckin[0], reservaCheckin[1], reservaCheckin[2], reservaCheckin[3], reservaCheckin[4]}); 
+                            }
+                            
+                            System.out.println(Arrays.toString(checkin.peek()));
                         }
                         case 3 -> {
                             System.out.println("Informacoes de voos");
                             int opcaoTemp;
-                            do {
-                                // Escolha do passageiro entre as opções.
+                            do {                 
                                 Linha();
+                                // Escolha do passageiro entre as opções.
                                 opcaoTemp = PegaNum("1 - Voos disponiveis\n2 - Voos com reservas pendentes\n3 - Voos cheios\n0 - Voltar\n-> ");
                                 Linha();
                                 
                                 switch (opcaoTemp) {
-                                    case 1 -> { // Voos disponiveis.
+                                    case 1 -> { // VOOS DISPONIVEIS.
                                         voos.add(new String[]{"9999", "Cariacica", "Vitoria", "12:00", "5", "0"});
                                         voos.add(new String[]{"9999", "A", "B", "12:00", "5", "5"});
                                         for (String[] voo : voos) {
@@ -142,10 +177,11 @@ public class Sistema_Controle_Aeroporto {
                                             }
                                         }
                                     }
-                                    case 2 -> // Voos com reservas pendentes.
+                                    case 2 -> { // VOOS COM RESERVAS PENDENTES.
                                         System.out.println("Voos com reservas pendentes");
-                                    case 3 -> {
-                                        // Voos cheios.
+                                        Linha();
+                                    }
+                                    case 3 -> { // VOOS CHEIOS.
                                         voos.add(new String[]{"9999", "Cariacica", "Vitoria", "12:00", "5", "0"});
                                         voos.add(new String[]{"9999", "A", "B", "12:00", "5", "5"});
                                         for (String[] voo : voos) {
@@ -199,6 +235,7 @@ public class Sistema_Controle_Aeroporto {
                                     }
                                 }
                                 
+                                // Mostras as informações da reserva e do voo.
                                 Linha();
                                 System.out.println("INFORMACOES DA RESERVA");
                                 System.out.println("Nome: " + reservaParaConfirmacao[0]);
@@ -208,13 +245,21 @@ public class Sistema_Controle_Aeroporto {
                                 System.out.println("Voo: " + vooParaConfirmacao[0] + " - Saindo de: " + vooParaConfirmacao[1] + ", Destino: " + vooParaConfirmacao[2] + ", Horario: " + vooParaConfirmacao[3]);
                                 Linha();
                                 
+                                // Confirmação da reserva.
                                 confirmacaoReserva = PegaNum("1 - Confirmar\n2 - Deixar pendente\n-> ");
                                 
+                                // Se houver confirmação.
                                 if (confirmacaoReserva == 1) {
+                                    // Pega a quantidade de passageiros naquele voo e soma mais um.
+                                    int qtdVoo = Integer.parseInt(vooParaConfirmacao[5]) + 1;
+                                    // Substitui a quantidade antiga pela nova.
+                                    vooParaConfirmacao[5] = String.valueOf(qtdVoo);
+                                    
+                                    // Remove o primeiro item da fila.
                                     reservasPendentes.poll();
+                                    // Adiciona a reserva confirmada na lista de reservas confirmadas.
                                     reservasConfirmadas.add(new String[]{reservaParaConfirmacao[0], reservaParaConfirmacao[1], reservaParaConfirmacao[2], reservaParaConfirmacao[3], reservaParaConfirmacao[4]}); 
                                 }
-                                
                             }
                             case 2 -> { // CRIAÇÃO DE VOOS.
                                 Linha();
