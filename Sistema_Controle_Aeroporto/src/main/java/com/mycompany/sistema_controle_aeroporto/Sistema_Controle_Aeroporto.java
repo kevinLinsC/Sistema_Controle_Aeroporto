@@ -178,8 +178,12 @@ public class Sistema_Controle_Aeroporto {
                                         }
                                     }
                                     case 2 -> { // VOOS COM RESERVAS PENDENTES.
-                                        System.out.println("Voos com reservas pendentes");
+                                        System.out.println("VOOS COM RESERVAS PENDENTES");
                                         Linha();
+                                        
+                                        for (String[] reserva : reservasPendentes) {
+                                            System.out.println(Arrays.toString(reserva));
+                                        }
                                     }
                                     case 3 -> { // VOOS CHEIOS.
                                         voos.add(new String[]{"9999", "Cariacica", "Vitoria", "12:00", "5", "0"});
