@@ -31,10 +31,14 @@ public class Sistema_Controle_Aeroporto {
         // ADICIONANDO VOOS ALEATORIOS. TIRAR DPS
         voos.add(new String[]{"1234", "Algum lugar", "Outro lugar", "12:00", "5", "0"});
         voos.add(new String[]{"4321", "Outro lugar", "Algum lugar", "18:00", "10", "0"});
-        voos.add(new String[]{"9999", "WRLD", "Another WRLD", "99:99", "999", "998"});
+        voos.add(new String[]{"9999", "WRLD", "Another WRLD", "99:99", "999", "997"});
         
         // VARIAVEIS DE RESERVAS DE VOOS
-        Queue<String[]> reservas = new LinkedList<>();
+        Queue<String[]> reservasPendentes = new LinkedList<>();
+        Queue<String[]> reservasConfirmadas = new LinkedList<>();
+        reservasPendentes.add(new String[]{"kevin", "19", "15015015015", "kevin@gmail.com", "9999"});
+        reservasPendentes.add(new String[]{"lyandra", "18", "15015015015", "lyandra@gmail.com", "9999"});
+        reservasPendentes.add(new String[]{"trinta", "34", "15015015015", "trinta@gmail.com", "4321"});
         
         // VARIAVEIS DO ADM
         String adm[] = {"adm123", "adm123"}; // Usuário e senha do adm.
@@ -110,8 +114,8 @@ public class Sistema_Controle_Aeroporto {
                                 email = dado.readLine();
                                 
                                 // Adiciona a reserva na fila.
-                                reservas.add(new String[]{nome, idade, cpf, email, vooSelecionado[0], "Pendente"});
-                                System.out.println(Arrays.toString(reservas.peek()));
+                                reservasPendentes.add(new String[]{nome, idade, cpf, email, vooSelecionado[0]});
+                                System.out.println(Arrays.toString(reservasPendentes.peek()));
                                 Linha();
                             }
                         }
@@ -129,7 +133,7 @@ public class Sistema_Controle_Aeroporto {
                                 Linha();
                                 
                                 switch (opcaoTemp) {
-                                    case 1: // Voos disponiveis.
+                                    case 1 -> { // Voos disponiveis.
                                         voos.add(new String[]{"9999", "Cariacica", "Vitoria", "12:00", "5", "0"});
                                         voos.add(new String[]{"9999", "A", "B", "12:00", "5", "5"});
                                         for (String[] voo : voos) {
@@ -137,11 +141,11 @@ public class Sistema_Controle_Aeroporto {
                                                 System.out.println(Arrays.toString(voo));
                                             }
                                         }
-                                        break;
-                                    case 2: // Voos com reservas pendentes.
+                                    }
+                                    case 2 -> // Voos com reservas pendentes.
                                         System.out.println("Voos com reservas pendentes");
-                                        break;
-                                    case 3: // Voos cheios.
+                                    case 3 -> {
+                                        // Voos cheios.
                                         voos.add(new String[]{"9999", "Cariacica", "Vitoria", "12:00", "5", "0"});
                                         voos.add(new String[]{"9999", "A", "B", "12:00", "5", "5"});
                                         for (String[] voo : voos) {
@@ -149,7 +153,7 @@ public class Sistema_Controle_Aeroporto {
                                                 System.out.println(Arrays.toString(voo));
                                             }
                                         }
-                                        break;
+                                    }
                                 }
                             } while (opcaoTemp != 0);
                         }
@@ -171,6 +175,7 @@ public class Sistema_Controle_Aeroporto {
                 if (login.equals(adm[0]) && senha.equals(adm[1])) {
                     isAdm = true;
                     while (true) {
+                        Linha();
                         opcaoAdm = PegaNum("1 - Processamento de reservas\n2 - Agendar novo voo\n0 - Escolher outro usuario\n-> ");
                             
                         if (opcaoAdm == 0) {
@@ -179,10 +184,40 @@ public class Sistema_Controle_Aeroporto {
 
                         // Escolhe qual opção será mostrada ao ADM com base na opcaoAdm.
                         switch (opcaoAdm){
-                            case 1: // PROCESSAMENTO DE RESERVAS.
-                                System.out.println("Processamento de reservas");
-
-                            case 2: // CRIAÇÃO DE VOOS.
+                            case 1 -> { // PROCESSAMENTO DE RESERVAS.
+                                int confirmacaoReserva; // 1 = Confirmado; 2 = Não confirmado.
+                                String[] reservaParaConfirmacao = null; // Proxima reserva na fila.
+                                String[] vooParaConfirmacao = null; // Voo relacionado a reserva.
+                                
+                                reservaParaConfirmacao = reservasPendentes.peek(); // Pega a proxima reserva na fila.
+                                
+                                // Pega o voo relacionado a reserva.
+                                for (String[] voo : voos) {
+                                    if (reservaParaConfirmacao[4].equals(voo[0])) {
+                                        vooParaConfirmacao = voo;
+                                        break;
+                                    }
+                                }
+                                
+                                Linha();
+                                System.out.println("INFORMACOES DA RESERVA");
+                                System.out.println("Nome: " + reservaParaConfirmacao[0]);
+                                System.out.println("Idade: " + reservaParaConfirmacao[1]);
+                                System.out.println("CPF: " + reservaParaConfirmacao[2]);
+                                System.out.println("E-mail: " + reservaParaConfirmacao[3]);
+                                System.out.println("Voo: " + vooParaConfirmacao[0] + " - Saindo de: " + vooParaConfirmacao[1] + ", Destino: " + vooParaConfirmacao[2] + ", Horario: " + vooParaConfirmacao[3]);
+                                Linha();
+                                
+                                confirmacaoReserva = PegaNum("1 - Confirmar\n2 - Deixar pendente\n-> ");
+                                
+                                if (confirmacaoReserva == 1) {
+                                    reservasPendentes.poll();
+                                    reservasConfirmadas.add(new String[]{reservaParaConfirmacao[0], reservaParaConfirmacao[1], reservaParaConfirmacao[2], reservaParaConfirmacao[3], reservaParaConfirmacao[4]}); 
+                                }
+                                
+                            }
+                            case 2 -> { // CRIAÇÃO DE VOOS.
+                                Linha();
                                 System.out.println("CRIACAO DE UM NOVO VOO");
                                 // Criando um número de 4 digitos para ser usado como código.
                                 numeroVoo = Integer.toString(random.nextInt(9000) + 1000);
@@ -210,6 +245,7 @@ public class Sistema_Controle_Aeroporto {
                                 for (String[] voo : voos) {
                                     System.out.println(Arrays.toString(voo));
                                 }
+                            }
                         }
                     }  
                 }
